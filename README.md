@@ -1,1 +1,515 @@
-# farmersupportplatform
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Farmer Organization – Fully Digital TO‑BE Platform</title>
+  <style>
+    :root{
+      --bg:#083f52; --panel:#0b556d; --panel2:#074052; --card:#0f6f88;
+      --accent:#00d4ff; --text:#fff; --muted:#cfe8f3; --grid:#0a4b60;
+      --good:#44d07b; --warn:#ffcc00; --bad:#ff5c7a;
+    }
+    *{box-sizing:border-box; font-family: Segoe UI, Roboto, Arial, sans-serif;}
+    body{margin:0; background:var(--bg); color:var(--text);}
+    .app{display:grid; grid-template-columns:260px 1fr; min-height:100vh;}
+
+    /* Sidebar */
+    .sidebar{background:var(--panel2); padding:18px; position:sticky; top:0; height:100vh; overflow:auto;}
+    .brand{display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:14px;}
+    .brand .logo{width:34px; height:34px; border-radius:10px; background:var(--accent); box-shadow:0 8px 22px rgba(0,0,0,.25);}
+    .brand h2{margin:0; font-size:16px; letter-spacing:.4px;}
+    .nav{margin-top:14px; display:flex; flex-direction:column; gap:8px;}
+    .nav button{all:unset; cursor:pointer; padding:11px 12px; border-radius:10px; background:#0a4b60; color:var(--muted);
+      display:flex; align-items:center; justify-content:space-between; border:1px solid rgba(255,255,255,.06);
+    }
+    .nav button:hover{background:var(--panel);}
+    .nav button.active{background:var(--panel); color:var(--text); border-color: rgba(0,212,255,.35);}
+    .nav .hint{font-size:11px; opacity:.85;}
+
+    /* Header */
+    .main{display:grid; grid-template-rows:78px 1fr;}
+    .header{background:var(--panel); display:flex; align-items:center; justify-content:space-between; padding:0 20px;}
+    .header .title{font-size:20px; font-weight:800; letter-spacing:.2px;}
+    .header .right{display:flex; align-items:center; gap:10px;}
+    .pill{display:flex; gap:8px; align-items:center; padding:8px 10px; border-radius:12px; background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.10);}
+    .pill input{background:transparent; border:none; color:var(--muted); outline:none; width:106px; font-size:12px;}
+    .icon{width:34px; height:34px; border-radius:12px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.18);
+      background:rgba(0,0,0,.16); font-weight:900;}
+    .btn{cursor:pointer; border:none; border-radius:10px; padding:10px 12px; font-weight:800; color:#003344; background:var(--accent);}
+    .btn:hover{filter:brightness(.95);}
+
+    /* Content */
+    .content{padding:20px; display:grid; gap:16px; grid-template-rows:auto auto 1fr; overflow:auto;}
+
+    /* KPI cards */
+    .kpis{display:grid; grid-template-columns:repeat(5, 1fr); gap:12px;}
+    .kpi{background:var(--card); border-radius:16px; padding:14px; border:1px solid rgba(255,255,255,.08);
+      box-shadow: 0 10px 26px rgba(0,0,0,.22);
+    }
+    .kpi .k{color:var(--text); font-weight:800; font-size:13px; margin-bottom:8px;}
+    .kpi .v{font-size:26px; font-weight:900;}
+    .kpi .s{margin-top:8px; font-size:11px; color:var(--muted); display:flex; justify-content:space-between;}
+
+    /* Panels */
+    .grid2{display:grid; grid-template-columns:2fr 1fr; gap:16px;}
+    .panel{background:var(--panel); border-radius:18px; padding:16px; border:1px solid rgba(255,255,255,.08);
+      box-shadow: 0 10px 26px rgba(0,0,0,.20);
+    }
+    .panel h3{margin:0 0 10px 0; font-size:14px; letter-spacing:.2px;}
+
+    /* Charts */
+    .chart{background:#0a4b60; border-radius:14px; height:260px; position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.06);}
+    .chart canvas{position:absolute; inset:0; width:100%; height:100%;}
+    .legend{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px; color:var(--muted); font-size:12px;}
+    .dot{width:10px; height:10px; border-radius:999px; display:inline-block; margin-right:6px;}
+
+    /* Table */
+    table{width:100%; border-collapse:collapse; overflow:hidden; border-radius:12px;}
+    th,td{padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.08);}
+    th{text-align:left; color:var(--muted); font-size:12px;}
+    td{font-size:13px;}
+    .tag{padding:4px 8px; border-radius:999px; font-size:12px; font-weight:800; display:inline-block;}
+    .tag.good{background:rgba(68,208,123,.18); color:#bff7d4; border:1px solid rgba(68,208,123,.35);}
+    .tag.warn{background:rgba(255,204,0,.16); color:#ffeaa3; border:1px solid rgba(255,204,0,.35);}
+    .tag.bad{background:rgba(255,92,122,.18); color:#ffd0da; border:1px solid rgba(255,92,122,.35);}
+
+    /* Page sections */
+    .page{display:none;}
+    .page.active{display:block;}
+
+    /* Cards within pages */
+    .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+    .mini{background:#0a4b60; border-radius:16px; padding:14px; border:1px solid rgba(255,255,255,.06);}
+    .mini h4{margin:0 0 10px 0; font-size:13px;}
+    .form{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+    .field{display:flex; flex-direction:column; gap:6px;}
+    .field label{font-size:12px; color:var(--muted);}
+    .field input,.field select, .field textarea{background:#073b4c; border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px; color:var(--text); outline:none;}
+    .field textarea{min-height:88px; resize:vertical;}
+
+    /* Responsive */
+    @media (max-width: 1100px){
+      .kpis{grid-template-columns:repeat(2, 1fr);}
+      .grid2{grid-template-columns:1fr;}
+      .cards{grid-template-columns:1fr;}
+      .app{grid-template-columns:1fr;}
+      .sidebar{position:relative; height:auto;}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <h2>Digital TO‑BE</h2>
+    </div>
+
+    <div class="nav" id="nav">
+      <button class="active" data-page="dashboard">Dashboard <span class="hint">KPIs</span></button>
+      <button data-page="registry">Farmer Registry <span class="hint">ID & Farms</span></button>
+      <button data-page="cases">Support Requests <span class="hint">Cases</span></button>
+      <button data-page="training">Extension & Training <span class="hint">GAP</span></button>
+      <button data-page="inputs">Inputs & E‑Vouchers <span class="hint">Vouchers</span></button>
+      <button data-page="monitoring">Monitoring & Visits <span class="hint">Evidence</span></button>
+      <button data-page="payments">Payments & Wallets <span class="hint">MoMo</span></button>
+      <button data-page="compliance">Compliance & Traceability <span class="hint">EUDR</span></button>
+      <button data-page="feedback">Feedback & Surveys <span class="hint">UX</span></button>
+    </div>
+
+    <p style="margin-top:14px; color:var(--muted); font-size:12px; line-height:1.35;">
+      Single‑file prototype (offline). Replace mock data with real APIs when ready.
+    </p>
+  </aside>
+
+  <main class="main">
+    <header class="header">
+      <div class="title">Farmer Organization – Fully Digital TO‑BE Platform</div>
+      <div class="right">
+        <div class="pill" title="Filter period">
+          <span style="color:var(--muted); font-size:12px; font-weight:800;">From</span>
+          <input type="date" id="fromDate" />
+        </div>
+        <div class="pill" title="Filter period">
+          <span style="color:var(--muted); font-size:12px; font-weight:800;">To</span>
+          <input type="date" id="toDate" />
+        </div>
+        <div class="icon" title="Info">i</div>
+        <button class="btn" id="newCaseBtn">+ New Request</button>
+      </div>
+    </header>
+
+    <section class="content">
+
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div class="kpis">
+          <div class="kpi"><div class="k">Active Farmers</div><div class="v" id="kpiFarmers">12,450</div><div class="s"><span>Registered</span><span>+2.4%</span></div></div>
+          <div class="kpi"><div class="k">Open Support Cases</div><div class="v" id="kpiOpen">326</div><div class="s"><span>In workflow</span><span class="tag warn">Attention</span></div></div>
+          <div class="kpi"><div class="k">Avg Response Time</div><div class="v" id="kpiResp">2.1 days</div><div class="s"><span>Target ≤ 3d</span><span class="tag good">On track</span></div></div>
+          <div class="kpi"><div class="k">Input Delivery Rate</div><div class="v" id="kpiInput">74%</div><div class="s"><span>Vouchers</span><span class="tag warn">Improve</span></div></div>
+          <div class="kpi"><div class="k">Traceability Coverage</div><div class="v" id="kpiTrace">92%</div><div class="s"><span>Geo evidence</span><span class="tag good">Strong</span></div></div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <h3>Process Performance Overview</h3>
+            <div class="chart"><canvas id="trendCanvas"></canvas></div>
+            <div class="legend" id="trendLegend"></div>
+          </div>
+          <div class="panel">
+            <h3>Alerts & Bottlenecks</h3>
+            <ul style="margin:0; padding-left:18px; color:var(--muted); line-height:1.55;">
+              <li><span class="tag warn">Delay</span> Input approval backlog (Eastern region)</li>
+              <li><span class="tag warn">Risk</span> Low monitoring frequency (3 societies)</li>
+              <li><span class="tag bad">Gap</span> Missing GPS polygon for 214 farms</li>
+              <li><span class="tag good">OK</span> Payment success rate above 95%</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Recent Support Requests</h3>
+          <table>
+            <thead>
+              <tr><th>Case ID</th><th>Farmer</th><th>Request Type</th><th>Status</th><th>Assigned</th><th>Action</th></tr>
+            </thead>
+            <tbody id="caseTable"></tbody>
+          </table>
+        </div>
+
+        <div style="color:var(--muted); font-size:12px;">Prototype interface – mock data only. Designed for the fully digital TO‑BE process.</div>
+      </div>
+
+      <!-- REGISTRY PAGE -->
+      <div class="page" id="page-registry">
+        <div class="panel">
+          <h3>Farmer Registry (digital identity + farm profiles)</h3>
+          <div class="cards">
+            <div class="mini"><h4>Search Farmer</h4>
+              <div class="field"><label>Farmer ID / Cocoa ID</label><input placeholder="e.g., GH-COCOA-001234" /></div>
+              <div style="margin-top:10px;"><button class="btn">Search</button></div>
+            </div>
+            <div class="mini"><h4>Register New Farmer</h4>
+              <div class="field"><label>Name</label><input placeholder="Full name"/></div>
+              <div class="field"><label>Phone</label><input placeholder="+233…"/></div>
+              <div style="margin-top:10px;"><button class="btn">Create record</button></div>
+            </div>
+            <div class="mini"><h4>Farm Mapping</h4>
+              <p style="color:var(--muted); margin-top:0;">Capture GPS polygon & upload proof (offline sync supported).</p>
+              <button class="btn">Open mapping tool</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CASES PAGE -->
+      <div class="page" id="page-cases">
+        <div class="panel">
+          <h3>Support Requests (case management + SLAs)</h3>
+          <div class="form">
+            <div class="field"><label>Request Type</label>
+              <select>
+                <option>Training (GAP)</option>
+                <option>Inputs / Voucher</option>
+                <option>Pest/Disease</option>
+                <option>Finance/Wallet</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field"><label>Priority</label>
+              <select><option>Normal</option><option>High</option><option>Urgent</option></select>
+            </div>
+            <div class="field" style="grid-column:1/3;"><label>Description</label><textarea placeholder="Describe the issue / support needed…"></textarea></div>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:10px;">
+            <button class="btn">Create Case</button>
+            <button class="btn" style="background:#bfefff;">Assign Field Staff</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAINING PAGE -->
+      <div class="page" id="page-training">
+        <div class="panel">
+          <h3>Extension & Training</h3>
+          <div class="cards">
+            <div class="mini"><h4>Digital Training Library</h4>
+              <p style="color:var(--muted); margin-top:0;">Audio/video micro‑lessons (GAP, pruning, spraying, fermentation).</p>
+              <button class="btn">Browse content</button>
+            </div>
+            <div class="mini"><h4>Session Scheduling</h4>
+              <p style="color:var(--muted); margin-top:0;">Plan group trainings and auto‑notify farmers via SMS/IVR.</p>
+              <button class="btn">Create session</button>
+            </div>
+            <div class="mini"><h4>Attendance & Evidence</h4>
+              <p style="color:var(--muted); margin-top:0;">Capture attendance (QR/ID) + photos for audits.</p>
+              <button class="btn">Capture attendance</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INPUTS PAGE -->
+      <div class="page" id="page-inputs">
+        <div class="panel">
+          <h3>Inputs & E‑Vouchers</h3>
+          <div class="cards">
+            <div class="mini"><h4>Issue E‑Voucher</h4>
+              <div class="field"><label>Farmer ID</label><input placeholder="GH-COCOA-…"/></div>
+              <div class="field"><label>Input Type</label><select><option>Fertilizer</option><option>Pesticide</option><option>Seedlings</option></select></div>
+              <div style="margin-top:10px;"><button class="btn">Generate voucher</button></div>
+            </div>
+            <div class="mini"><h4>Redeem Voucher</h4>
+              <p style="color:var(--muted); margin-top:0;">Verify farmer ID and voucher QR (offline capable).</p>
+              <button class="btn">Open redeem screen</button>
+            </div>
+            <div class="mini"><h4>Stock Visibility</h4>
+              <p style="color:var(--muted); margin-top:0;">Warehouse stock levels and supplier deliveries.</p>
+              <button class="btn">View inventory</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONITORING PAGE -->
+      <div class="page" id="page-monitoring">
+        <div class="panel">
+          <h3>Monitoring & Visits</h3>
+          <div class="cards">
+            <div class="mini"><h4>Visit Checklist</h4>
+              <p style="color:var(--muted); margin-top:0;">Standard checklist with photos, GPS and timestamp.</p>
+              <button class="btn">Start visit</button>
+            </div>
+            <div class="mini"><h4>Issues & Corrective Actions</h4>
+              <p style="color:var(--muted); margin-top:0;">Flag issues and track follow‑ups automatically.</p>
+              <button class="btn">Open cases</button>
+            </div>
+            <div class="mini"><h4>Remote Monitoring</h4>
+              <p style="color:var(--muted); margin-top:0;">Integrate satellite/geo evidence for EUDR compliance.</p>
+              <button class="btn">View map layer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENTS PAGE -->
+      <div class="page" id="page-payments">
+        <div class="panel">
+          <h3>Payments & Wallets</h3>
+          <div class="cards">
+            <div class="mini"><h4>Farmer Wallet</h4>
+              <p style="color:var(--muted); margin-top:0;">Track payments, bonuses and input credit.</p>
+              <button class="btn">Search wallet</button>
+            </div>
+            <div class="mini"><h4>Disburse Payment</h4>
+              <p style="color:var(--muted); margin-top:0;">Mobile money / bank transfer integration (API).</p>
+              <button class="btn">Create payout batch</button>
+            </div>
+            <div class="mini"><h4>Premium Transparency</h4>
+              <p style="color:var(--muted); margin-top:0;">Explain premium rules and distribution to members.</p>
+              <button class="btn">View reports</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPLIANCE PAGE -->
+      <div class="page" id="page-compliance">
+        <div class="panel">
+          <h3>Compliance & Traceability</h3>
+          <div class="cards">
+            <div class="mini"><h4>Traceability Events</h4>
+              <p style="color:var(--muted); margin-top:0;">Farm → batch → shipment event tracking.</p>
+              <button class="btn">View events</button>
+            </div>
+            <div class="mini"><h4>Audit Readiness</h4>
+              <p style="color:var(--muted); margin-top:0;">Training records, grievance logs, deforestation checks.</p>
+              <button class="btn">Generate audit pack</button>
+            </div>
+            <div class="mini"><h4>Data Quality</h4>
+              <p style="color:var(--muted); margin-top:0;">Completeness checks and anomaly alerts.</p>
+              <button class="btn">Run checks</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEEDBACK PAGE -->
+      <div class="page" id="page-feedback">
+        <div class="panel">
+          <h3>Feedback & Surveys (perception & usefulness)</h3>
+          <div class="form">
+            <div class="field"><label>Role</label><select><option>Farmer</option><option>Field Staff</option><option>Manager</option><option>Partner</option></select></div>
+            <div class="field"><label>Channel</label><select><option>Mobile App</option><option>USSD/IVR</option><option>Web</option></select></div>
+
+            <div class="field"><label>System Quality (1–10)</label><input type="number" min="1" max="10" value="8"/></div>
+            <div class="field"><label>Information Quality (1–10)</label><input type="number" min="1" max="10" value="8"/></div>
+            <div class="field"><label>Data Quality (1–10)</label><input type="number" min="1" max="10" value="9"/></div>
+            <div class="field"><label>Perceived Benefit (1–10)</label><input type="number" min="1" max="10" value="8"/></div>
+            <div class="field"><label>User Satisfaction (1–10)</label><input type="number" min="1" max="10" value="9"/></div>
+
+            <div class="field" style="grid-column:1/3;"><label>Comment</label><textarea placeholder="What worked well? What should improve?"></textarea></div>
+          </div>
+          <div style="margin-top:12px;"><button class="btn">Submit Feedback</button></div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<script>
+  // ------- SPA navigation -------
+  const nav = document.getElementById('nav');
+  const pages = {
+    dashboard: document.getElementById('page-dashboard'),
+    registry: document.getElementById('page-registry'),
+    cases: document.getElementById('page-cases'),
+    training: document.getElementById('page-training'),
+    inputs: document.getElementById('page-inputs'),
+    monitoring: document.getElementById('page-monitoring'),
+    payments: document.getElementById('page-payments'),
+    compliance: document.getElementById('page-compliance'),
+    feedback: document.getElementById('page-feedback'),
+  };
+
+  nav.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-page]');
+    if (!btn) return;
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    Object.values(pages).forEach(p => p.classList.remove('active'));
+    const key = btn.dataset.page;
+    pages[key].classList.add('active');
+
+    // redraw chart when dashboard visible
+    if (key === 'dashboard') drawTrend();
+  });
+
+  // ------- Mock data aligned to TO-BE process -------
+  const cases = [
+    {id:'CS-24051', farmer:'Kwame A.', type:'Training (GAP)', status:'Scheduled', assigned:'Extension Officer', tag:'good'},
+    {id:'CS-24052', farmer:'Akosua B.', type:'Input Voucher', status:'Approved', assigned:'Society Office', tag:'good'},
+    {id:'CS-24053', farmer:'Kofi M.', type:'Pest Issue', status:'In Progress', assigned:'Field Staff', tag:'warn'},
+    {id:'CS-24054', farmer:'Esi N.', type:'Wallet/Payment', status:'Pending', assigned:'Finance Desk', tag:'bad'},
+  ];
+
+  const tbody = document.getElementById('caseTable');
+  function renderCases(){
+    tbody.innerHTML = cases.map(c => `
+      <tr>
+        <td><strong>${c.id}</strong></td>
+        <td>${c.farmer}</td>
+        <td>${c.type}</td>
+        <td><span class="tag ${c.tag}">${c.status}</span></td>
+        <td>${c.assigned}</td>
+        <td><button class="btn" style="padding:8px 10px;">View</button></td>
+      </tr>
+    `).join('');
+  }
+  renderCases();
+
+  // ------- Simple canvas trend chart (no external libs) -------
+  const trendCanvas = document.getElementById('trendCanvas');
+  const legend = document.getElementById('trendLegend');
+
+  const trendSeries = [
+    {name:'Resp. Time', color:'#00d4ff', data:[2.8,2.4,2.6,2.1,2.0,2.1], unit:'days'},
+    {name:'Training Coverage', color:'#2b78e4', data:[52,58,61,65,67,68], unit:'%'},
+    {name:'Monitoring Rate', color:'#ff9900', data:[40,43,47,52,55,57], unit:'%'},
+    {name:'Input Delivery', color:'#ff00aa', data:[60,62,64,69,72,74], unit:'%'},
+  ];
+  const months = ['Jan','Mar','May','Jul','Sep','Nov'];
+
+  function drawTrend(){
+    const ctx = trendCanvas.getContext('2d');
+    const rect = trendCanvas.getBoundingClientRect();
+
+    // handle HiDPI
+    const dpr = window.devicePixelRatio || 1;
+    trendCanvas.width = Math.floor(rect.width * dpr);
+    trendCanvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const w = rect.width, h = rect.height;
+    ctx.clearRect(0,0,w,h);
+
+    const padL=44, padR=18, padT=18, padB=34;
+    const pw=w-padL-padR, ph=h-padT-padB;
+
+    // grid
+    ctx.strokeStyle = 'rgba(255,255,255,.10)';
+    ctx.lineWidth = 1;
+    for(let i=0;i<=5;i++){
+      const y = padT + i*(ph/5);
+      ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+pw,y); ctx.stroke();
+    }
+    for(let i=0;i<months.length;i++){
+      const x = padL + i*(pw/(months.length-1));
+      ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+ph); ctx.stroke();
+    }
+
+    // x labels
+    ctx.fillStyle = 'rgba(207,232,243,.95)';
+    ctx.font = '12px Segoe UI, Arial';
+    ctx.textAlign = 'center';
+    months.forEach((m,i)=>{
+      const x = padL + i*(pw/(months.length-1));
+      ctx.fillText(m, x, padT+ph+24);
+    });
+
+    // normalize each series independently for display (since mixed units)
+    trendSeries.forEach(s => {
+      const min = Math.min(...s.data);
+      const max = Math.max(...s.data);
+      const range = (max-min) || 1;
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      s.data.forEach((v,i)=>{
+        const x = padL + i*(pw/(s.data.length-1));
+        const y = padT + ph - ((v-min)/range)*ph;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+
+      // points
+      ctx.fillStyle = s.color;
+      s.data.forEach((v,i)=>{
+        const x = padL + i*(pw/(s.data.length-1));
+        const y = padT + ph - ((v-min)/range)*ph;
+        ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2); ctx.fill();
+      });
+    });
+
+    // legend (abbreviated)
+    legend.innerHTML = trendSeries.map(s => {
+      const abbr = s.name.split(' ').map(p=>p[0]).join('').slice(0,3).toUpperCase();
+      return `<span><span class="dot" style="background:${s.color}"></span><strong>${abbr}</strong> <span style="opacity:.85">${s.name}</span></span>`;
+    }).join('');
+  }
+  drawTrend();
+
+  // default dates
+  const now = new Date();
+  const iso = (d)=> d.toISOString().slice(0,10);
+  document.getElementById('toDate').value = iso(now);
+  const past = new Date(now); past.setMonth(past.getMonth()-6);
+  document.getElementById('fromDate').value = iso(past);
+
+  // new case button
+  document.getElementById('newCaseBtn').addEventListener('click', ()=>{
+    const btn = document.querySelector('.nav button[data-page="cases"]');
+    btn.click();
+  });
+
+  // Redraw on resize
+  window.addEventListener('resize', ()=>{
+    if (pages.dashboard.classList.contains('active')) drawTrend();
+  });
+</script>
+</body>
+</html>
